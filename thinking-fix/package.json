@@ -1,0 +1,20 @@
+{
+  "name": "opencode-reasoning-stripper",
+  "version": "0.1.0",
+  "description": "Strip past reasoning blocks from context to maximize LLM prompt cache hit rate (Reasonix-style). Includes baker-optimized mode for parallel orchestration sessions.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "latest",
+    "@types/node": "^26.2.0",
+    "typescript": "^5.6.0"
+  }
+}
