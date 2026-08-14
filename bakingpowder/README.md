@@ -3,6 +3,71 @@
 Orchestrates **parallel file-writing** from a `graph.json` spec by spawning
 baker-apprentice sub-sessions, one per file, with bounded per-worker prompts.
 
+## Install
+
+Requires [opencode](https://opencode.ai) v1.18+ and the
+[`thinking-fix`](https://github.com/studio-no-more-subscription/opencode-baker-kit/tree/main/thinking-fix)
+sibling plugin (optional — only needed if you want reasoning stripping).
+
+```bash
+# 1. Clone the kit
+git clone https://github.com/studio-no-more-subscription/opencode-baker-kit.git
+cd opencode-baker-kit
+
+# 2. Symlink (or copy) the plugin + agents + command into your opencode config
+mkdir -p ~/.config/opencode/{plugins,agents,commands}
+
+ln -sfn "$(pwd)/bakingpowder/.opencode/plugins/baker.ts" \
+         ~/.config/opencode/plugins/baker.ts
+ln -sfn "$(pwd)/bakingpowder/.opencode/agents/baker.md" \
+         ~/.config/opencode/agents/baker.md
+ln -sfn "$(pwd)/bakingpowder/.opencode/agents/baker-apprentice.md" \
+         ~/.config/opencode/agents/baker-apprentice.md
+ln -sfn "$(pwd)/bakingpowder/.opencode/commands/bake.md" \
+         ~/.config/opencode/commands/bake.md
+
+# 3. (Optional) install the thinking-fix sibling plugin
+cd thinking-fix
+bun install
+bun build ./src/index.ts --target=bun --format=esm \
+        --outfile=./dist-bundled/index.js
+ln -sfn "$(pwd)/dist-bundled/index.js" \
+         ~/.config/opencode/plugins/stripper.ts
+
+# 4. Restart opencode. The /bake command and baker agent should appear.
+```
+
+**Updating after a `git pull`**: just restart opencode. The plugin is loaded
+as a `.ts` file (no build step) and the agents are markdown (no compile), so
+symlinks pick up changes immediately. The only exception is `thinking-fix`,
+which needs the bundle rebuild in step 3.
+
+**Uninstall**:
+
+```bash
+rm ~/.config/opencode/plugins/baker.ts
+rm ~/.config/opencode/agents/baker.md
+rm ~/.config/opencode/agents/baker-apprentice.md
+rm ~/.config/opencode/commands/bake.md
+```
+
+The kit stays on disk; only the symlinks are removed.
+
+### Permissions
+
+The `baker` primary agent needs `edit` permission for `.opencode/baker/*` so it
+can write `graph.json` and `state.json`. The default `baker.md` declares:
+
+```yaml
+permission:
+  edit:
+    ".opencode/baker/*": allow
+    "*": ask
+```
+
+Adjust to taste. The `baker-apprentice` agent is locked down (no bash, edit
+only, no other agents).
+
 ## What it does
 
 `bakingpowder` is an [opencode](https://opencode.ai) plugin. The primary
